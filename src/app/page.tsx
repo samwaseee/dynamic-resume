@@ -2,21 +2,21 @@
 
 import { useState, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
-import { masterResume, Project } from "@/src/data/masterResume";
+import { masterResume, MasterResumeData } from "@/src/data/masterResume";
 import { ResumeDocument } from "@/src/components/ResumeDocument";
-import { Sparkles, Printer, Loader2 } from "lucide-react";
+import { Sparkles, Printer, Loader2, Edit3, Wand2, ChevronDown } from "lucide-react";
 
 export default function Home() {
   const [jobDescription, setJobDescription] = useState("");
   const [loading, setLoading] = useState(false);
-  const [activeSkills, setActiveSkills] = useState<string[]>(masterResume.allTechnicalSkills);
-  const [activeSoftSkills, setActiveSoftSkills] = useState<string[]>(masterResume.allSoftSkills);
-  const [activeProjects, setActiveProjects] = useState<Project[]>(masterResume.allProjects);
+  const [activeTab, setActiveTab] = useState<"ai" | "edit">("ai");
+  
+  const [resumeData, setResumeData] = useState<MasterResumeData>(masterResume);
 
   const printRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({
     contentRef: printRef,
-    documentTitle: "Samiur_Rahman_Wasi_Resume",
+    documentTitle: `${resumeData.personalInfo.name.replace(/\s+/g, '_')}_Resume`,
   });
 
   const handleTailor = async () => {
@@ -32,14 +32,21 @@ export default function Home() {
 
       const data = await res.json();
 
-      if (data.selectedSkills) setActiveSkills(data.selectedSkills);
-      if (data.selectedSoftSkills) setActiveSoftSkills(data.selectedSoftSkills);
-      if (data.selectedProjectIds) {
-        const filtered = masterResume.allProjects.filter((p) =>
-          data.selectedProjectIds.includes(p.id)
-        );
-        setActiveProjects(filtered.length > 0 ? filtered : masterResume.allProjects);
-      }
+      setResumeData((prev) => {
+        const newData = { ...prev };
+        if (data.selectedSkills) {
+          newData.skills = {
+            expertise: masterResume.skills.expertise.filter(s => data.selectedSkills.includes(s)),
+            comfortable: masterResume.skills.comfortable.filter(s => data.selectedSkills.includes(s)),
+            familiar: masterResume.skills.familiar.filter(s => data.selectedSkills.includes(s)),
+          };
+        }
+        if (data.selectedProjectIds) {
+          const filtered = masterResume.allProjects.filter((p) => data.selectedProjectIds.includes(p.id));
+          newData.allProjects = filtered.length > 0 ? filtered : masterResume.allProjects;
+        }
+        return newData;
+      });
     } catch (err) {
       console.error(err);
     } finally {
@@ -47,50 +54,193 @@ export default function Home() {
     }
   };
 
+  const updateProject = (idx: number, field: string, val: any) => {
+    const newProjects = [...resumeData.allProjects];
+    newProjects[idx] = { ...newProjects[idx], [field]: val };
+    setResumeData({ ...resumeData, allProjects: newProjects });
+  };
+
+  const updateProjectLinks = (idx: number, linkField: 'live' | 'frontend' | 'backend', checked: boolean) => {
+    const newProjects = [...resumeData.allProjects];
+    newProjects[idx].links = { ...newProjects[idx].links, [linkField]: checked };
+    setResumeData({ ...resumeData, allProjects: newProjects });
+  };
+
+  const updatePublication = (idx: number, field: string, val: string) => {
+    const newPubs = [...resumeData.publications];
+    newPubs[idx] = { ...newPubs[idx], [field]: val };
+    setResumeData({ ...resumeData, publications: newPubs });
+  };
+
+  // Base classes for inputs to keep things dry
+  const inputClass = "p-2 text-xs border border-zinc-700 bg-zinc-900 text-zinc-100 rounded focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder-zinc-500";
+
   return (
-    <main className="min-h-screen bg-slate-100 flex flex-col lg:flex-row">
-      {/* Control Panel */}
-      <div className="w-full lg:w-1/3 p-6 flex flex-col gap-4 border-r border-slate-200 bg-white">
-        <h1 className="text-xl font-bold text-slate-800">Dynamic Resume Tailorer</h1>
-        <p className="text-xs text-slate-500">
-          Paste the target job description below. The AI model will prioritize the most relevant skills and projects.
-        </p>
-
-        <textarea
-          value={jobDescription}
-          onChange={(e) => setJobDescription(e.target.value)}
-          placeholder="Paste Job Description / Requirements here..."
-          className="w-full flex-1 min-h-[220px] p-3 border border-slate-300 rounded-lg text-xs font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-
-        <div className="flex gap-2">
-          <button
-            onClick={handleTailor}
-            disabled={loading || !jobDescription.trim()}
-            className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium py-2.5 px-4 rounded-lg disabled:opacity-50 transition"
-          >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-            Tailor Resume
+    <main className="min-h-screen bg-zinc-300 flex flex-col xl:flex-row">
+      {/* Control Panel - DARK THEME */}
+      <div className="w-full xl:w-[480px] flex flex-col border-r border-zinc-800 bg-zinc-950 h-screen">
+        
+        {/* Header */}
+        <div className="p-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-950">
+          <h1 className="text-lg font-bold text-zinc-100">Resume Builder</h1>
+          <button onClick={() => handlePrint()} className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 border border-zinc-700 text-xs font-medium py-2 px-3 rounded-md transition">
+            <Printer className="w-3.5 h-3.5" /> Print
           </button>
-          <button
-            onClick={() => handlePrint()}
-            className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-medium py-2.5 px-4 rounded-lg transition"
-          >
-            <Printer className="w-4 h-4" />
-            Print / Save PDF
+        </div>
+
+        {/* Tabs */}
+        <div className="flex border-b border-zinc-800 text-sm font-medium bg-zinc-950">
+          <button onClick={() => setActiveTab("ai")} className={`flex-1 py-3 flex items-center justify-center gap-2 transition ${activeTab === "ai" ? "text-blue-400 border-b-2 border-blue-500 bg-zinc-900/50" : "text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300"}`}>
+            <Wand2 className="w-4 h-4"/> AI Tailor
           </button>
+          <button onClick={() => setActiveTab("edit")} className={`flex-1 py-3 flex items-center justify-center gap-2 transition ${activeTab === "edit" ? "text-blue-400 border-b-2 border-blue-500 bg-zinc-900/50" : "text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300"}`}>
+            <Edit3 className="w-4 h-4"/> Comprehensive Edit
+          </button>
+        </div>
+
+        {/* Panel Content */}
+        <div className="flex-1 overflow-y-auto p-5 custom-scrollbar bg-zinc-950">
+          {activeTab === "ai" ? (
+            <div className="flex flex-col gap-4">
+              <p className="text-xs text-zinc-400">Paste the job description. The AI will cross-reference your master file to select the best skills and projects.</p>
+              <textarea
+                value={jobDescription}
+                onChange={(e) => setJobDescription(e.target.value)}
+                placeholder="Paste Job Description..."
+                className={`w-full min-h-[300px] font-mono leading-relaxed resize-y ${inputClass}`}
+              />
+              <button onClick={handleTailor} disabled={loading || !jobDescription.trim()} className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium py-3 px-4 rounded-lg disabled:opacity-50 transition border border-blue-500 shadow-lg shadow-blue-900/20">
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                Tailor Resume
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3 text-sm">
+              
+              <details className="group border border-zinc-800 rounded-lg bg-zinc-900 overflow-hidden">
+                <summary className="flex cursor-pointer items-center justify-between bg-zinc-900 px-4 py-3 font-semibold text-zinc-200 text-xs uppercase tracking-wider hover:bg-zinc-800 transition">
+                  Personal & Links <ChevronDown className="h-4 w-4 text-zinc-400 transition-transform group-open:-rotate-180" />
+                </summary>
+                <div className="p-4 grid grid-cols-2 gap-3 bg-zinc-950 border-t border-zinc-800">
+                  <input type="text" value={resumeData.personalInfo.name} onChange={(e) => setResumeData({ ...resumeData, personalInfo: { ...resumeData.personalInfo, name: e.target.value } })} className={inputClass} placeholder="Name" />
+                  <input type="text" value={resumeData.personalInfo.title} onChange={(e) => setResumeData({ ...resumeData, personalInfo: { ...resumeData.personalInfo, title: e.target.value } })} className={inputClass} placeholder="Title" />
+                  <input type="text" value={resumeData.personalInfo.phone} onChange={(e) => setResumeData({ ...resumeData, personalInfo: { ...resumeData.personalInfo, phone: e.target.value } })} className={inputClass} placeholder="Phone" />
+                  <input type="text" value={resumeData.personalInfo.email} onChange={(e) => setResumeData({ ...resumeData, personalInfo: { ...resumeData.personalInfo, email: e.target.value } })} className={inputClass} placeholder="Email" />
+                  <input type="text" value={resumeData.personalInfo.location} onChange={(e) => setResumeData({ ...resumeData, personalInfo: { ...resumeData.personalInfo, location: e.target.value } })} className={`${inputClass} col-span-2`} placeholder="Location" />
+                  <input type="text" value={resumeData.personalInfo.portfolioUrl} onChange={(e) => setResumeData({ ...resumeData, personalInfo: { ...resumeData.personalInfo, portfolioUrl: e.target.value } })} className={`${inputClass} col-span-2`} placeholder="Portfolio URL" />
+                  <input type="text" value={resumeData.personalInfo.githubUrl} onChange={(e) => setResumeData({ ...resumeData, personalInfo: { ...resumeData.personalInfo, githubUrl: e.target.value } })} className={`${inputClass} col-span-2`} placeholder="GitHub URL" />
+                  <input type="text" value={resumeData.personalInfo.linkedinUrl} onChange={(e) => setResumeData({ ...resumeData, personalInfo: { ...resumeData.personalInfo, linkedinUrl: e.target.value } })} className={`${inputClass} col-span-2`} placeholder="LinkedIn URL" />
+                </div>
+              </details>
+
+              <details className="group border border-zinc-800 rounded-lg bg-zinc-900 overflow-hidden">
+                <summary className="flex cursor-pointer items-center justify-between bg-zinc-900 px-4 py-3 font-semibold text-zinc-200 text-xs uppercase tracking-wider hover:bg-zinc-800 transition">
+                  Profile Summary <ChevronDown className="h-4 w-4 text-zinc-400 transition-transform group-open:-rotate-180" />
+                </summary>
+                <div className="p-4 border-t border-zinc-800 bg-zinc-950">
+                  <textarea value={resumeData.profileSummary} onChange={(e) => setResumeData({ ...resumeData, profileSummary: e.target.value })} className={`w-full h-32 ${inputClass}`} />
+                </div>
+              </details>
+
+              <details className="group border border-zinc-800 rounded-lg bg-zinc-900 overflow-hidden">
+                <summary className="flex cursor-pointer items-center justify-between bg-zinc-900 px-4 py-3 font-semibold text-zinc-200 text-xs uppercase tracking-wider hover:bg-zinc-800 transition">
+                  Skills <ChevronDown className="h-4 w-4 text-zinc-400 transition-transform group-open:-rotate-180" />
+                </summary>
+                <div className="p-4 space-y-3 border-t border-zinc-800 bg-zinc-950">
+                  <div>
+                    <span className="text-[10px] text-zinc-400 font-bold block mb-1">Expertise</span>
+                    <input type="text" value={resumeData.skills.expertise.join(", ")} onChange={(e) => setResumeData({ ...resumeData, skills: { ...resumeData.skills, expertise: e.target.value.split(",").map(s => s.trim()) } })} className={`w-full ${inputClass}`} />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-zinc-400 font-bold block mb-1">Comfortable</span>
+                    <input type="text" value={resumeData.skills.comfortable.join(", ")} onChange={(e) => setResumeData({ ...resumeData, skills: { ...resumeData.skills, comfortable: e.target.value.split(",").map(s => s.trim()) } })} className={`w-full ${inputClass}`} />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-zinc-400 font-bold block mb-1">Familiar</span>
+                    <input type="text" value={resumeData.skills.familiar.join(", ")} onChange={(e) => setResumeData({ ...resumeData, skills: { ...resumeData.skills, familiar: e.target.value.split(",").map(s => s.trim()) } })} className={`w-full ${inputClass}`} />
+                  </div>
+                </div>
+              </details>
+
+              <details className="group border border-zinc-800 rounded-lg bg-zinc-900 overflow-hidden" open>
+                <summary className="flex cursor-pointer items-center justify-between bg-zinc-900 px-4 py-3 font-semibold text-zinc-200 text-xs uppercase tracking-wider hover:bg-zinc-800 transition">
+                  Projects <ChevronDown className="h-4 w-4 text-zinc-400 transition-transform group-open:-rotate-180" />
+                </summary>
+                <div className="p-4 space-y-6 border-t border-zinc-800 bg-zinc-950">
+                  {resumeData.allProjects.map((project, idx) => (
+                    <div key={project.id} className="p-3 bg-zinc-900 border border-zinc-800 rounded-md shadow-sm space-y-3">
+                      <div className="grid grid-cols-2 gap-2">
+                        <input type="text" value={project.title} onChange={(e) => updateProject(idx, "title", e.target.value)} className={`${inputClass} font-bold text-white`} placeholder="Project Title" />
+                        <input type="text" value={project.subtitle} onChange={(e) => updateProject(idx, "subtitle", e.target.value)} className={inputClass} placeholder="Subtitle" />
+                      </div>
+                      
+                      <div className="flex gap-4 text-xs font-medium text-zinc-400">
+                        <label className="flex items-center gap-1 cursor-pointer hover:text-zinc-200 transition"><input type="checkbox" checked={project.links.live} onChange={(e) => updateProjectLinks(idx, 'live', e.target.checked)} className="accent-blue-500 bg-zinc-800 border-zinc-700 rounded"/> Live Site</label>
+                        <label className="flex items-center gap-1 cursor-pointer hover:text-zinc-200 transition"><input type="checkbox" checked={project.links.frontend} onChange={(e) => updateProjectLinks(idx, 'frontend', e.target.checked)} className="accent-blue-500 bg-zinc-800 border-zinc-700 rounded"/> Frontend</label>
+                        <label className="flex items-center gap-1 cursor-pointer hover:text-zinc-200 transition"><input type="checkbox" checked={project.links.backend} onChange={(e) => updateProjectLinks(idx, 'backend', e.target.checked)} className="accent-blue-500 bg-zinc-800 border-zinc-700 rounded"/> Backend</label>
+                      </div>
+
+                      <div>
+                        <span className="text-[10px] text-zinc-400 font-bold block mb-1">Bullet Points (One per line)</span>
+                        <textarea 
+                          value={project.bullets.join('\n')} 
+                          onChange={(e) => updateProject(idx, "bullets", e.target.value.split('\n'))} 
+                          className={`w-full h-28 whitespace-pre-wrap ${inputClass}`} 
+                        />
+                      </div>
+
+                      <div>
+                        <span className="text-[10px] text-zinc-400 font-bold block mb-1">Technologies</span>
+                        <input type="text" value={project.technologies || ""} onChange={(e) => updateProject(idx, "technologies", e.target.value)} className={`w-full ${inputClass}`} placeholder="Tech stack..." />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </details>
+
+              <details className="group border border-zinc-800 rounded-lg bg-zinc-900 overflow-hidden">
+                <summary className="flex cursor-pointer items-center justify-between bg-zinc-900 px-4 py-3 font-semibold text-zinc-200 text-xs uppercase tracking-wider hover:bg-zinc-800 transition">
+                  Education <ChevronDown className="h-4 w-4 text-zinc-400 transition-transform group-open:-rotate-180" />
+                </summary>
+                <div className="p-4 grid grid-cols-2 gap-3 border-t border-zinc-800 bg-zinc-950">
+                  <input type="text" value={resumeData.education.degree} onChange={(e) => setResumeData({ ...resumeData, education: { ...resumeData.education, degree: e.target.value } })} className={`${inputClass} col-span-2`} placeholder="Degree" />
+                  <input type="text" value={resumeData.education.institution} onChange={(e) => setResumeData({ ...resumeData, education: { ...resumeData.education, institution: e.target.value } })} className={`${inputClass} col-span-2`} placeholder="Institution" />
+                  <input type="text" value={resumeData.education.cgpa} onChange={(e) => setResumeData({ ...resumeData, education: { ...resumeData.education, cgpa: e.target.value } })} className={inputClass} placeholder="CGPA" />
+                  <input type="text" value={resumeData.education.duration} onChange={(e) => setResumeData({ ...resumeData, education: { ...resumeData.education, duration: e.target.value } })} className={inputClass} placeholder="Duration" />
+                </div>
+              </details>
+
+              <details className="group border border-zinc-800 rounded-lg bg-zinc-900 overflow-hidden">
+                <summary className="flex cursor-pointer items-center justify-between bg-zinc-900 px-4 py-3 font-semibold text-zinc-200 text-xs uppercase tracking-wider hover:bg-zinc-800 transition">
+                  Publications <ChevronDown className="h-4 w-4 text-zinc-400 transition-transform group-open:-rotate-180" />
+                </summary>
+                <div className="p-4 space-y-4 border-t border-zinc-800 bg-zinc-950">
+                  {resumeData.publications.map((pub, idx) => (
+                    <div key={idx} className="p-3 bg-zinc-900 border border-zinc-800 rounded-md shadow-sm grid grid-cols-2 gap-2">
+                      <input type="text" value={pub.authors} onChange={(e) => updatePublication(idx, "authors", e.target.value)} className={`${inputClass} col-span-2`} placeholder="Authors (e.g. S. R. Wasi et al.)" />
+                      <input type="text" value={pub.title} onChange={(e) => updatePublication(idx, "title", e.target.value)} className={`${inputClass} col-span-2 font-semibold text-white`} placeholder="Paper Title" />
+                      <input type="text" value={pub.venue} onChange={(e) => updatePublication(idx, "venue", e.target.value)} className={inputClass} placeholder="Venue (e.g. IEOM'25)" />
+                      <input type="text" value={pub.doi} onChange={(e) => updatePublication(idx, "doi", e.target.value)} className={inputClass} placeholder="DOI" />
+                    </div>
+                  ))}
+                </div>
+              </details>
+
+              {/* Master Reset */}
+              <div className="pt-4 pb-2">
+                <button onClick={() => setResumeData(masterResume)} className="w-full py-3 text-xs text-red-400 font-semibold bg-red-950/30 hover:bg-red-900/50 rounded-lg border border-red-900/50 transition">
+                  Reset Everything to Master File
+                </button>
+              </div>
+
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Live Resume Preview */}
-      <div className="flex-1 p-6 flex justify-center items-start overflow-y-auto max-h-screen">
-        <ResumeDocument
-          ref={printRef}
-          data={masterResume}
-          activeSkills={activeSkills}
-          activeSoftSkills={activeSoftSkills}
-          activeProjects={activeProjects}
-        />
+      {/* Live Resume Preview - Kept neutral/light so the A4 paper effect remains visible */}
+      <div className="flex-1 p-6 flex justify-center items-start overflow-y-auto bg-zinc-300">
+        <ResumeDocument ref={printRef} data={resumeData} />
       </div>
     </main>
   );

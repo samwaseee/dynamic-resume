@@ -2,11 +2,16 @@ export interface Project {
   id: string;
   title: string;
   subtitle: string;
-  liveUrl?: string;
-  frontendRepo?: string;
-  backendRepo?: string;
+  links: { live: boolean; frontend: boolean; backend: boolean };
   bullets: string[];
-  technologies: string[];
+  technologies?: string;
+}
+
+export interface Publication {
+  authors: string;
+  title: string;
+  venue: string;
+  doi: string;
 }
 
 export interface MasterResumeData {
@@ -21,8 +26,11 @@ export interface MasterResumeData {
     linkedinUrl: string;
   };
   profileSummary: string;
-  allTechnicalSkills: string[];
-  allSoftSkills: string[];
+  skills: {
+    expertise: string[];
+    comfortable: string[];
+    familiar: string[];
+  };
   allProjects: Project[];
   education: {
     degree: string;
@@ -30,82 +38,89 @@ export interface MasterResumeData {
     cgpa: string;
     duration: string;
   };
-  languages: { name: string; proficiency: string }[];
+  publications: Publication[];
 }
 
 export const masterResume: MasterResumeData = {
   personalInfo: {
     name: "Samiur Rahman Wasi",
-    title: "Fullstack Developer",
+    title: "Web Developer",
     phone: "+880-18811-46425",
     location: "4224, Chittagong, Bangladesh",
     email: "samwaseee@gmail.com",
-    portfolioUrl: "https://yourportfolio.com",
-    githubUrl: "https://github.com",
-    linkedinUrl: "https://linkedin.com",
+    portfolioUrl: "#",
+    githubUrl: "#",
+    linkedinUrl: "#",
   },
   profileSummary:
-    "As a dedicated computer science undergrad, I've developed a strong foundation in web development. My passion for competitive programming has honed my problem-solving skills and, combined with my development expertise, enabled me to create user-centric, responsive full-stack applications. I aspire to excel as a software engineer, innovating and optimizing technical processes. I thrive in diverse environments and am eager to contribute to a team that values innovation and continuous improvement.",
-  allTechnicalSkills: [
-    "React", "Next.js", "Express.js", "Node.js", "MySQL", "MongoDB", "Git",
-    "JavaScript", "TypeScript", "C++", "CSS", "HTML", "Tailwind CSS", "MUI", "REST API"
-  ],
-  allSoftSkills: [
-    "Problem solving", "Patience", "Adaptability", "Learning curiosity", "Analytical thinking"
-  ],
+    "Dedicated CS undergrad bridging software engineering and AI. Proven track record of developing responsive full-stack applications, tackling complex algorithms (200+ competitive programming solves), and conducting research in machine learning. Eager to optimize technical processes and build user-centric software.",
+  skills: {
+    expertise: ["Next.js", "MongoDB", "Git", "Express.js", "Node.js", "React Query", "Redux", "HTML", "JavaScript", "CSS", "REST API"],
+    comfortable: ["Python", "TypeScript", "PostgreSQL", "C++", "Tailwind CSS", "framer motion"],
+    familiar: ["MUI", "MVP", "Boostrap", "Antd"],
+  },
   allProjects: [
     {
-      id: "care-camp",
-      title: "Care Camp",
-      subtitle: "A Medical Camp Management System",
-      liveUrl: "https://example.com",
-      frontendRepo: "https://github.com/example/frontend",
-      backendRepo: "https://github.com/example/backend",
+      id: "starlight-university",
+      title: "Starlight University",
+      subtitle: "A School Management System (team project)",
+      links: { live: true, frontend: true, backend: false },
       bullets: [
-        "Enabled participants to track their camp participation, view payment history, and activity analytics graph.",
-        "Equipped organizers with powerful tools to manage camps, track participants, and update camp details.",
-        "Integrated secure payment processing for seamless transactions."
-      ],
-      technologies: ["MERN", "JWT", "Animate.css", "Ant Design", "Material UI", "Next UI", "Framer Motion", "Awesome Reveal", "React Hook Form", "TanStack React Query", "Axios", "React Parallax", "Recharts"]
+        "Custom authentication system for secure login with encrypted credentials ensures robust data protection.",
+        "Different access levels for students, teachers, and admins allowing users to focus on their specific tasks.",
+        "Monitor attendance records and patterns for students and teachers with input access of records.",
+        "Comprehensive tables display real time records for all students, teachers, and courses."
+      ]
     },
     {
-      id: "booked-inn",
-      title: "BookedInn",
-      subtitle: "A Hotel Reservation Web Application",
-      liveUrl: "https://example.com",
-      frontendRepo: "https://github.com/example/frontend",
-      backendRepo: "https://github.com/example/backend",
+      id: "nexus-ai",
+      title: "Nexus AI",
+      subtitle: "AI Freelance Marketplace",
+      links: { live: true, frontend: true, backend: true },
       bullets: [
-        "Streamlined room reservations with instant booking modifications and cancellations.",
-        "Implemented user review and rating systems for verified stays.",
-        "Secured session authentication using JWT tokens."
-      ],
-      technologies: ["React", "Tailwind CSS", "Node JS", "MongoDB", "Express JS", "Axios", "Firebase", "AOS", "MUI", "Pigeon Map", "DaisyUI"]
+        "Role-based dashboards (Freelancer, Client, Admin) for gig tracking and profile management via Next.js.",
+        "Secured protected routes and backend communication using NextAuth and JWT-backed Axios interceptors.",
+        "Integrated AI pitch generators, interactive chats, and Recharts analytics with Zod-validated forms.",
+        "Streamlined full-stack integration by generating a comprehensive OpenAPI specification for backend REST routes"
+      ]
     },
     {
-      id: "sams-travels",
-      title: "SAM's Travels",
-      subtitle: "A Collaborative Tourist Spot Management System",
-      liveUrl: "https://example.com",
-      frontendRepo: "https://github.com/example/frontend",
-      backendRepo: "https://github.com/example/backend",
+      id: "promptforge",
+      title: "PromptForge",
+      subtitle: "An AI Prompt Marketplace",
+      links: { live: true, frontend: true, backend: true },
       bullets: [
-        "Allowed users to sort tourist spots based on cost, improving discovery and user experience.",
-        "Built a dedicated dashboard for users to manage contributed tourist spots.",
-        "Structured country-specific profiles highlighting key tourist attractions."
+        "A highly scalable full-stack e-commerce platform using Next.js and React, allowing users to discover, securely purchase, and store production-ready AI prompts in a centralized vault.",
+        "Developed comprehensive seller and admin dashboards leveraging Tailwind CSS and Recharts to deliver real-time revenue tracking, analytics, and complex approval workflows.",
+        "Implemented secure authentication, protected routes, and role-based access guards using Firebase OAuth paired with a JWT-backed API client."
       ],
-      technologies: ["React", "Node JS", "MongoDB", "Express JS", "React-typewriter", "React Awesome reveal", "React Tooltip"]
+      technologies: "Nextjs, TypeScript, MERN, JWT, Material UI, Framer Motion, React Hook Form, TanStack React Query, used Axios, Recharts, emailJS, flowbite, react fast marquee"
     }
   ],
   education: {
     degree: "Bachelor of Science in Computer Science and Engineering",
     institution: "International Islamic University, Chittagong",
-    cgpa: "3.7",
+    cgpa: "3.5",
     duration: "2022 - present"
   },
-  languages: [
-    { name: "Bengali", proficiency: "Native" },
-    { name: "English", proficiency: "Fluent" },
-    { name: "Hindi", proficiency: "Familiar" }
+  publications: [
+    {
+      authors: "S. R. Wasi",
+      title: "Machine Learning Models for Predictive Maintenance in RMG",
+      venue: "IEOM'25",
+      doi: "10.46254/BA08.20250158"
+    },
+    {
+      authors: "S. R. Wasi et al.",
+      title: "Interpretable Feature-Fused Models for PyPI Malware Detection",
+      venue: "IEEE QPAIN'26",
+      doi: "10.1109/QPAIN69676.2026.11545547"
+    },
+    {
+      authors: "S. I. Hira, S. R. Wasi et al.",
+      title: "Behavioral Generative Augmentation for Network Intrusion Detection under Extreme Data Scarcity",
+      venue: "IEEE QPAIN'26",
+      doi: "10.1109/QPAIN69676.2026.11545987"
+    }
   ]
 };

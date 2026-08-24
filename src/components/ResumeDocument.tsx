@@ -1,17 +1,16 @@
 "use client";
 
 import React, { forwardRef } from "react";
-import { MasterResumeData, Project } from "@/src/data/masterResume";
+import { MasterResumeData } from "@/src/data/masterResume";
+import { CheckSquare, Square } from "lucide-react";
 
 interface ResumeDocumentProps {
   data: MasterResumeData;
-  activeSkills: string[];
-  activeSoftSkills: string[];
-  activeProjects: Project[];
 }
 
 export const ResumeDocument = forwardRef<HTMLDivElement, ResumeDocumentProps>(
-  ({ data, activeSkills, activeSoftSkills, activeProjects }, ref) => {
+  ({ data }, ref) => {
+    
     return (
       <div
         ref={ref}
@@ -19,108 +18,114 @@ export const ResumeDocument = forwardRef<HTMLDivElement, ResumeDocumentProps>(
         style={{ boxSizing: "border-box" }}
       >
         {/* Header */}
-        <header className="border-b pb-2 mb-3">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-950">{data.personalInfo.name}</h1>
-          <p className="text-sm font-semibold text-gray-700">{data.personalInfo.title}</p>
-          <div className="flex flex-wrap gap-x-3 text-[11px] text-gray-600 mt-1">
+        <header className="border-b-2 border-gray-800 pb-2 mb-3 text-center">
+          <h1 className="text-3xl font-bold uppercase tracking-wide text-gray-950">{data.personalInfo.name}</h1>
+          <p className="text-sm font-semibold text-gray-700 mt-1">{data.personalInfo.title}</p>
+          <div className="flex flex-wrap justify-center gap-x-3 text-[11px] text-gray-700 mt-1">
             <span>{data.personalInfo.phone}</span>
             <span>•</span>
             <span>{data.personalInfo.location}</span>
             <span>•</span>
             <span>{data.personalInfo.email}</span>
             <span>•</span>
-            <span className="text-blue-600 font-medium">Portfolio</span>
+            <a href={data.personalInfo.portfolioUrl} target="_blank" rel="noreferrer" className="font-medium hover:underline cursor-pointer text-gray-900">Portfolio</a>
             <span>•</span>
-            <span className="text-blue-600 font-medium">Github</span>
+            <a href={data.personalInfo.githubUrl} target="_blank" rel="noreferrer" className="font-medium hover:underline cursor-pointer text-gray-900">Github</a>
             <span>•</span>
-            <span className="text-blue-600 font-medium">Linkedin</span>
+            <a href={data.personalInfo.linkedinUrl} target="_blank" rel="noreferrer" className="font-medium hover:underline cursor-pointer text-gray-900">Linkedin</a>
           </div>
         </header>
 
         {/* Profile */}
-        <section className="mb-3">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-gray-800 border-b border-gray-300 pb-0.5 mb-1">
+        <section className="mb-4">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-gray-900 bg-gray-200 px-2 py-0.5 mb-2">
             Profile
           </h2>
-          <p className="text-[11px] text-gray-700 text-justify">{data.profileSummary}</p>
+          <p className="text-[11px] text-gray-800 text-justify leading-snug px-2">
+            {data.profileSummary}
+          </p>
         </section>
 
         {/* Skills */}
-        <section className="mb-3">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-gray-800 border-b border-gray-300 pb-0.5 mb-1">
+        <section className="mb-4">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-gray-900 bg-gray-200 px-2 py-0.5 mb-2">
             Skills
           </h2>
-          <div className="grid grid-cols-2 gap-x-4 text-[11px]">
-            <div>
-              <span className="font-semibold">Technical: </span>
-              <span>{activeSkills.join(" • ")}</span>
-            </div>
-            <div>
-              <span className="font-semibold">Soft Skills: </span>
-              <span>{activeSoftSkills.join(" • ")}</span>
-            </div>
+          <div className="px-2 space-y-1 text-[11px]">
+            {data.skills.expertise.length > 0 && (
+              <div><span className="font-bold w-24 inline-block">Expertise</span><span className="font-medium text-gray-700">• {data.skills.expertise.join(" • ")}</span></div>
+            )}
+            {data.skills.comfortable.length > 0 && (
+              <div><span className="font-bold w-24 inline-block">Comfortable</span><span className="font-medium text-gray-700">• {data.skills.comfortable.join(" • ")}</span></div>
+            )}
+            {data.skills.familiar.length > 0 && (
+              <div><span className="font-bold w-24 inline-block">Familiar</span><span className="font-medium text-gray-700">• {data.skills.familiar.join(" • ")}</span></div>
+            )}
           </div>
         </section>
 
         {/* Projects */}
-        <section className="mb-3">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-gray-800 border-b border-gray-300 pb-0.5 mb-2">
+        <section className="mb-4">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-gray-900 bg-gray-200 px-2 py-0.5 mb-2">
             Projects
           </h2>
-          <div className="space-y-2.5">
-            {activeProjects.map((project) => (
+          <div className="px-2 space-y-3">
+            {data.allProjects.map((project) => (
               <div key={project.id}>
-                <div className="flex justify-between items-baseline">
-                  <div className="flex items-baseline gap-2">
-                    <span className="font-bold text-gray-900 text-[11.5px]">{project.title}</span>
-                    <span className="text-gray-600 italic text-[11px]">- {project.subtitle}</span>
-                  </div>
-                  <div className="flex gap-2 text-[10px] text-blue-600 font-medium">
-                    <span>Live Website</span>
-                    <span>•</span>
-                    <span>Frontend Repo</span>
-                    <span>•</span>
-                    <span>Backend Repo</span>
+                <div className="flex justify-between items-center mb-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-gray-900 text-[13px]">{project.title}</span>
+                    <div className="flex items-center gap-3 text-[10px] text-gray-700">
+                      <span className="flex items-center gap-1">{project.links.live ? <CheckSquare size={10} /> : <Square size={10}/>} Live site</span>
+                      <span className="flex items-center gap-1">{project.links.frontend ? <CheckSquare size={10} /> : <Square size={10}/>} Frontend</span>
+                      <span className="flex items-center gap-1">{project.links.backend ? <CheckSquare size={10} /> : <Square size={10}/>} Backend</span>
+                    </div>
                   </div>
                 </div>
-                <ul className="list-disc list-inside text-[11px] text-gray-700 space-y-0.5 mt-0.5">
+                <p className="text-gray-700 italic text-[11px] mb-1">{project.subtitle}</p>
+                <ul className="list-disc list-outside ml-4 text-[11px] text-gray-800 space-y-0.5 leading-snug">
                   {project.bullets.map((b, idx) => (
                     <li key={idx}>{b}</li>
                   ))}
                 </ul>
-                <p className="text-[10px] text-gray-600 mt-0.5">
-                  <span className="font-semibold">Technologies: </span>
-                  {project.technologies.join(", ")}
-                </p>
+                {project.technologies && (
+                  <p className="text-[10px] text-gray-700 mt-1">
+                    <span className="font-bold">Technologies: </span>{project.technologies}
+                  </p>
+                )}
               </div>
             ))}
           </div>
         </section>
 
-        {/* Education & Language */}
-        <div className="grid grid-cols-3 gap-4 border-t border-gray-300 pt-2">
-          <section className="col-span-2">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-gray-800 mb-1">Education</h2>
-            <p className="font-semibold text-[11px] text-gray-900">{data.education.degree}</p>
-            <p className="text-[11px] text-gray-700">{data.education.institution}</p>
-            <div className="flex justify-between text-[10px] text-gray-500 mt-0.5">
-              <span>CGPA: {data.education.cgpa}</span>
-              <span>{data.education.duration}</span>
+        {/* Education */}
+        <section className="mb-4">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-gray-900 bg-gray-200 px-2 py-0.5 mb-2">
+            Education
+          </h2>
+          <div className="px-2 flex justify-between items-start">
+            <div>
+              <p className="font-bold text-[12px] text-gray-900">{data.education.degree}</p>
+              <p className="text-[11px] text-gray-800">{data.education.institution}</p>
+              <p className="text-[11px] text-gray-700 mt-0.5">CGPA: {data.education.cgpa}</p>
             </div>
-          </section>
+            <span className="text-[11px] text-gray-700">{data.education.duration}</span>
+          </div>
+        </section>
 
-          <section>
-            <h2 className="text-xs font-bold uppercase tracking-wider text-gray-800 mb-1">Language</h2>
-            <div className="text-[11px] text-gray-700 space-y-0.5">
-              {data.languages.map((l) => (
-                <div key={l.name} className="flex justify-between">
-                  <span>{l.name}:</span>
-                  <span className="text-gray-500">{l.proficiency}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-        </div>
+        {/* Publications */}
+        <section>
+          <h2 className="text-sm font-bold uppercase tracking-wider text-gray-900 bg-gray-200 px-2 py-0.5 mb-2">
+            Publications
+          </h2>
+          <ul className="px-2 list-disc list-outside ml-4 text-[11px] text-gray-800 space-y-1.5 leading-snug">
+            {data.publications.map((pub, idx) => (
+              <li key={idx}>
+                {pub.authors}, "{pub.title}," <span className="italic">{pub.venue}</span>. DOI: {pub.doi}
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
     );
   }

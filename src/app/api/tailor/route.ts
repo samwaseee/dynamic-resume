@@ -12,15 +12,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Job description is required" }, { status: 400 });
     }
 
+    // Combine categorized skills into a single list for the AI to choose from
+    const allAvailableSkills = [
+      ...masterResume.skills.expertise,
+      ...masterResume.skills.comfortable,
+      ...masterResume.skills.familiar
+    ];
+
     const prompt = `
 You are an expert ATS resume optimizer.
-Given a job description and a candidate's master profile, select the most relevant technical skills, soft skills, and top 2-3 projects that best match the job requirements.
+Given a job description and a candidate's master profile, select the most relevant technical skills and top 2-3 projects that best match the job requirements.
 
 Candidate Master Skills:
-${JSON.stringify(masterResume.allTechnicalSkills)}
-
-Candidate Soft Skills:
-${JSON.stringify(masterResume.allSoftSkills)}
+${JSON.stringify(allAvailableSkills)}
 
 Candidate Available Projects (IDs and Tech stacks):
 ${JSON.stringify(masterResume.allProjects.map(p => ({ id: p.id, title: p.title, technologies: p.technologies })))}
@@ -30,8 +34,7 @@ ${jobDescription}
 
 Return a strictly formatted JSON object with:
 1. "selectedSkills": An ordered array of relevant technical skills from the master list.
-2. "selectedSoftSkills": An array of matching soft skills.
-3. "selectedProjectIds": An array of project IDs in order of relevance (maximum 3).
+2. "selectedProjectIds": An array of project IDs in order of relevance (maximum 3).
 `;
 
     const response = await ai.models.generateContent({
@@ -46,16 +49,12 @@ Return a strictly formatted JSON object with:
               type: Type.ARRAY,
               items: { type: Type.STRING }
             },
-            selectedSoftSkills: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING }
-            },
             selectedProjectIds: {
               type: Type.ARRAY,
               items: { type: Type.STRING }
             }
           },
-          required: ["selectedSkills", "selectedSoftSkills", "selectedProjectIds"]
+          required: ["selectedSkills", "selectedProjectIds"]
         }
       }
     });
