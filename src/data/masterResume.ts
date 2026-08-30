@@ -2,7 +2,7 @@ export interface Project {
   id: string;
   title: string;
   subtitle: string;
-  links: { live: boolean; frontend: boolean; backend: boolean };
+  links: { live: string; frontend: string; backend: string };
   bullets: string[];
   technologies?: string;
 }
@@ -48,23 +48,23 @@ export const masterResume: MasterResumeData = {
     phone: "+880-18811-46425",
     location: "4224, Chittagong, Bangladesh",
     email: "samwaseee@gmail.com",
-    portfolioUrl: "#",
-    githubUrl: "#",
-    linkedinUrl: "#",
+    portfolioUrl: "https://samiur-rahman-wasee.vercel.app/",
+    githubUrl: "https://github.com/samwaseee",
+    linkedinUrl: "https://www.linkedin.com/in/samiur-rahman-wasee/",
   },
   profileSummary:
     "Dedicated CS undergrad bridging software engineering and AI. Proven track record of developing responsive full-stack applications, tackling complex algorithms (200+ competitive programming solves), and conducting research in machine learning. Eager to optimize technical processes and build user-centric software.",
   skills: {
-    expertise: ["Next.js", "MongoDB", "Git", "Express.js", "Node.js", "React Query", "Redux", "HTML", "JavaScript", "CSS", "REST API"],
-    comfortable: ["Python", "TypeScript", "PostgreSQL", "C++", "Tailwind CSS", "framer motion"],
-    familiar: ["MUI", "MVP", "Boostrap", "Antd"],
+    expertise: ["Next.js", "MongoDB", "Git", "HTML", "JavaScript", "CSS", "C++"],
+    comfortable: ["Python", "Express.js", "Node.js", "REST API", "TypeScript", "PostgreSQL", "Tailwind CSS"],
+    familiar: ["MUI", "MVP", "React Query", "Redux", "Bootstrap", "Antd", "Framer Motion"],
   },
   allProjects: [
     {
       id: "starlight-university",
       title: "Starlight University",
       subtitle: "A School Management System (team project)",
-      links: { live: true, frontend: true, backend: false },
+      links: { live: "https://starlight-un-edu.vercel.app/", frontend: "https://github.com/saifullah-10/school-management-system-client", backend: "https://github.com/saifullah-10/school-management-system-server" },
       bullets: [
         "Custom authentication system for secure login with encrypted credentials ensures robust data protection.",
         "Different access levels for students, teachers, and admins allowing users to focus on their specific tasks.",
@@ -76,7 +76,7 @@ export const masterResume: MasterResumeData = {
       id: "nexus-ai",
       title: "Nexus AI",
       subtitle: "AI Freelance Marketplace",
-      links: { live: true, frontend: true, backend: true },
+      links: { live: "https://nexus-ai-nexus.vercel.app/", frontend: "https://github.com/samwaseee/Nexus-AI_frontend", backend: "https://github.com/samwaseee/Nexus-AI_backend" },
       bullets: [
         "Role-based dashboards (Freelancer, Client, Admin) for gig tracking and profile management via Next.js.",
         "Secured protected routes and backend communication using NextAuth and JWT-backed Axios interceptors.",
@@ -88,7 +88,7 @@ export const masterResume: MasterResumeData = {
       id: "promptforge",
       title: "PromptForge",
       subtitle: "An AI Prompt Marketplace",
-      links: { live: true, frontend: true, backend: true },
+      links: { live: "https://promtforge-frontend.vercel.app/", frontend: "https://github.com/samwaseee/promtforge-frontend", backend: "https://github.com/samwaseee/promtforge-backend" },
       bullets: [
         "A highly scalable full-stack e-commerce platform using Next.js and React, allowing users to discover, securely purchase, and store production-ready AI prompts in a centralized vault.",
         "Developed comprehensive seller and admin dashboards leveraging Tailwind CSS and Recharts to deliver real-time revenue tracking, analytics, and complex approval workflows.",
@@ -100,7 +100,7 @@ export const masterResume: MasterResumeData = {
   education: {
     degree: "Bachelor of Science in Computer Science and Engineering",
     institution: "International Islamic University, Chittagong",
-    cgpa: "3.5",
+    cgpa: "3.6",
     duration: "2022 - present"
   },
   publications: [
